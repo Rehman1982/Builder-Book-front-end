@@ -51,9 +51,9 @@ const purchaseBillSlice = createSlice({
       state.variant = "create";
       state.showComp = true;
     },
-    editPB: (state, { payload }) => {
-      state.transDetails = payload.tr;
-      state.jrDetails = payload.jr;
+    editPB: (state) => {
+      // state.transDetails = payload.tr;
+      // state.jrDetails = payload.jr;
       state.variant = "edit";
       state.showComp = true;
     },
