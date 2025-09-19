@@ -1,64 +1,65 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import purchaseBillApi from "./purchaseBillApi";
+import vendorPaymentApi from "./vendorPaymentApi";
 
 const initialState = {
-  pbNo: "",
+  paymentNo: null,
   transDetails: {
     trans_no: "",
-    pbNo: "",
+    paymentNo: "",
     created_at: "",
     user_id: "",
     user_name: "",
-    project_id: "",
-    project_name: "",
   },
   jrDetails: [
     {
       desp: "",
-      item_id: "",
-      item_name: "",
+      vendor_id: "",
+      vendor_name: "",
+      account_id: "",
+      account_name: "",
       project_id: "",
       project_name: "",
-      qty: 0,
-      rate: 0,
       debit: 0,
+      credit: 0,
     },
   ],
   errors: {},
   variant: "view",
   showComp: false,
-  items: [],
+  vendors: [],
   projects: [],
+  books: [],
   period: {},
 };
 
-const purchaseBillSlice = createSlice({
-  name: "purchaseBillSlice",
+const vendorPaymentSlice = createSlice({
+  name: "vendorPaymentSlice",
   initialState,
   reducers: {
     setPeriod: (state, action) => {
       state.period = action.payload;
     },
-    viewPB: (state, { payload }) => {
-      state.pbNo = payload;
+    viewPayment: (state, { payload }) => {
+      console.log(payload);
+      state.paymentNo = payload;
       state.variant = "view";
       state.showComp = true;
     },
-    createPB: (state) => {
-      state.pbNo = "";
+    createPayment: (state) => {
+      state.paymentNo = "";
       state.jrDetails = [];
       state.variant = "create";
       state.showComp = true;
     },
-    editPB: (state) => {
+    editPayment: (state) => {
       // state.transDetails = payload.tr;
       // state.jrDetails = payload.jr;
       state.variant = "edit";
       state.showComp = true;
     },
-    closePB: (state) => {
-      state.pbNo = "";
+    closePayment: (state) => {
+      state.paymentNo = "";
       state.transDetails = {};
       state.jrDetails = [];
       state.errors = {};
@@ -89,19 +90,26 @@ const purchaseBillSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addMatcher(
-        purchaseBillApi.endpoints.showPB.matchFulfilled,
+        vendorPaymentApi.endpoints.show.matchFulfilled,
         (state, action) => {
           state.jrDetails = action.payload.jrDetails;
           state.transDetails = action.payload.transDetails;
-          state.variant = "view";
-          state.showComp = true;
+          // state.variant = "view";
+          // state.showComp = true;
         }
       )
       .addMatcher(
-        purchaseBillApi.endpoints.createPB.matchFulfilled,
+        vendorPaymentApi.endpoints.create.matchFulfilled,
         (state, action) => {
-          state.items = action.payload.items;
-          state.projects = action.payload.projects;
+          console.log(action);
+          if (action?.payload?.projects) {
+            state.projects = action.payload.projects;
+          }
+          if (action?.payload?.vendors) {
+            state.vendors = action.payload.vendors;
+          }
+          // state.items = action.payload.items;
+          // state.projects = action.payload.projects;
         }
       );
   },
@@ -109,13 +117,13 @@ const purchaseBillSlice = createSlice({
 
 export const {
   setPeriod,
-  viewPB,
-  createPB,
-  editPB,
-  closePB,
+  viewPayment,
+  createPayment,
+  editPayment,
+  closePayment,
   addJR,
   updateJR,
   deleteJR,
   setErrors,
-} = purchaseBillSlice.actions;
-export default purchaseBillSlice.reducer;
+} = vendorPaymentSlice.actions;
+export default vendorPaymentSlice.reducer;

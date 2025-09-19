@@ -44,7 +44,10 @@ const CURD = forwardRef((props, ref) => {
   const billNo = useSelector(
     (state) => state.creditBillSlice.selectedBill.Bill_no
   );
-  const { data, isLoading, isError } = useShowQuery({ bill_no: billNo });
+  const { data, isLoading, isError } = useShowQuery(
+    { bill_no: billNo },
+    { skip: !billNo }
+  );
 
   const [billInfo, setBillInfo] = useState(null);
   const [billItems, setBillItems] = useState([]);
@@ -53,30 +56,10 @@ const CURD = forwardRef((props, ref) => {
     type: "creditBills",
     id: null,
   });
-  // const handleOpenMessenger = useCallback((billId) => {
-  //   setMessenger({ type: "creditBills", id: billId });
-  //   MessengerRef.current.open();
-  // }, []);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // useImperativeHandle(ref, () => ({
-  //   open: () => setOpen(true),
-  //   close: () => setOpen(false),
-  // }));
-  // const getData = async () => {
-  //   try {
-  //     const result = await API.get("transactions/creditBills/1", {
-  //       params: { bill_no: billNo },
-  //     });
-  //     setBillInfo(result?.data?.bill);
-  //     setBillItems(result?.data?.details);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
   useEffect(() => {
-    console.log("Vendor Bill DAta", data);
     setBillInfo(data?.bill || null);
     setBillItems(data?.details || []);
   }, [data]);

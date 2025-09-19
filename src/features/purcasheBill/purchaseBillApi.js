@@ -9,8 +9,11 @@ const purchaseBillApi = baseApi.injectEndpoints({
       }),
       providesTags: (rslt, err, arg) =>
         rslt?.data
-          ? [...rslt.data.map((j) => ({ type: "AcTransfer", id: j.id }))]
-          : ["AcTransfers"],
+          ? [
+              ...rslt.data.map((j) => ({ type: "AcTransfer", id: j.id })),
+              { type: "AcTransfers" },
+            ]
+          : [{ type: "AcTransfers" }],
     }),
     storePB: builder.mutation({
       query: (data) => ({
@@ -18,7 +21,7 @@ const purchaseBillApi = baseApi.injectEndpoints({
         method: "post",
         data: data,
       }),
-      invalidatesTags: (rslt, err, arg) => (rslt ? ["AcTransfers"] : []),
+      invalidatesTags: [{ type: "AcTransfers" }],
     }),
     updatePB: builder.mutation({
       query: (params) => ({

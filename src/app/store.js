@@ -22,6 +22,7 @@ import reportSlice from "../features/reports/reportSlice";
 import plReportSlice from "../features/reports/plReportSlice";
 import acTransferSlice from "../features/acTransfer/acTransferSlice";
 import purchaseBillSlice from "../features/purcasheBill/purchaseBillSlice";
+import vendorPaymentSlice from "../features/VendorPayments/vendorPaymentSlice";
 
 const store = configureStore({
   reducer: {
@@ -48,6 +49,7 @@ const store = configureStore({
     plReportSlice: plReportSlice,
     acTransferSlice: acTransferSlice,
     purchaseBillSlice: purchaseBillSlice,
+    vendorPaymentSlice: vendorPaymentSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(baseApi.middleware),

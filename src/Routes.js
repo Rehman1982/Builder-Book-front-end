@@ -46,6 +46,7 @@ import ReduxPOsIndex from "./Pages/POsRedux/Index";
 import Testing from "./components/ui/PageLayout";
 import ErrorPage from "./Pages/Errors/ErrorPage";
 import AcTransfer from "./Pages/opAcTransfer/AcTransfer";
+import VendorPayments from "./Pages/VendorPayment/VendorPayments";
 
 const routes = createBrowserRouter([
   {
@@ -119,7 +120,7 @@ const routes = createBrowserRouter([
             path: "creditBills",
             element: <CreditBills />,
           },
-          { path: "purchaseBills", element: <PurchaseBills /> },
+          // { path: "purchaseBills", element: <PurchaseBills /> },
           {
             path: "journals",
             children: [
@@ -135,12 +136,12 @@ const routes = createBrowserRouter([
           },
 
           { path: "debitMemos", element: <>DBMs </> },
-          { path: "vendorPayments", element: <>VPs </> },
           { path: "personalExpenses", element: <>PEs </> },
           { path: "resealseRetentions", element: <>RRs </> },
         ],
       },
       { path: "purchaseBills", element: <PurchaseBills /> },
+      { path: "vendorPayments", element: <VendorPayments /> },
       {
         path: "profile",
         element: <Profile />,

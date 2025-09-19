@@ -22,11 +22,10 @@ import {
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import MuiAppBar from "@mui/material/AppBar";
-
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { blue, deepOrange, grey, orange } from "@mui/material/colors";
+import { blue, deepOrange, green, grey, orange } from "@mui/material/colors";
 import {
   Link,
   NavLink,
@@ -101,9 +100,9 @@ export default function LayoutAfterLogin(props) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" fontWeight={800} noWrap component="div">
-            Builder's Book
-          </Typography>
+
+          <Box sx={{ height: 50 }} component={"img"} src="./Mianlogo.png" />
+
           <Box
             sx={{
               marginLeft: "auto",
@@ -112,10 +111,10 @@ export default function LayoutAfterLogin(props) {
               gap: 2,
             }}
           >
-            <CompanyChange
+            {/* <CompanyChange
               activeCompany={activeCompany}
               setActiveCompany={setActiveCompany}
-            />
+            /> */}
             <UserMenu />
           </Box>
         </Toolbar>

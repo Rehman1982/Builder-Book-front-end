@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import PageLayout from "../../components/ui/PageLayout";
 import { fontSize, Stack } from "@mui/system";
 import { useIndexAcTransferQuery } from "../../features/acTransfer/acTransferApi";
@@ -11,11 +11,6 @@ import {
   Grid,
   Icon,
   IconButton,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Menu,
   MenuItem,
   Paper,
   Skeleton,
@@ -36,201 +31,146 @@ import {
   createAcTranfer,
   viewAcTranfer,
 } from "../../features/acTransfer/acTransferSlice";
-import { Bold, IButton } from "../../components/ui/UiComponents";
-import { openDetails, setDefaults } from "../../features/reports/reportSlice";
-import Details from "../../components/ui/Details";
-import { Body2 } from "../../components/ui/MyTypo";
 
 const AcTransfer = () => {
   const dispatch = useDispatch();
   // globale State
+
   // local Sate
   const currentDate = dayjs();
-  const [period, changePeriod] = useState({
+  const [period, setPeriod] = useState({
     from: currentDate.startOf("month").format("YYYY-MM-DD"),
     to: currentDate.endOf("month").format("YYYY-MM-DD"),
   });
-  const [group, setGroup] = useState({ name: "User", value: "user_id" });
+  const [group, setGroup] = useState(null);
   const [groupData, setGroupData] = useState(null);
   // API Calls
   const {
     data = [],
     isLoading,
     isFetching,
-  } = useIndexAcTransferQuery({ period: period, groupby: group?.value });
+  } = useIndexAcTransferQuery({ period: period });
   // functions
   const state = useMemo(() => {
     if (isLoading || isFetching) return [];
+    if (group) {
+      const formatData = data.map((v) => ({
+        ...v,
+        created_at: dayjs(v.created_at).format("YYYY-MM-DD"),
+      }));
+      setGroupData(_.groupBy(formatData, group));
+      console.log(groupData);
+    } else {
+      setGroupData(null);
+    }
     return data;
-  }, [data]);
-  useEffect(() => {
-    dispatch(
-      setDefaults({
-        endpoint: "transactions/oprtransfer?page=1",
-        period: period,
-      })
-    );
-    // dispatch(setPeriod());
-  }, []);
-  useEffect(() => {
-    console.log("Ac transfer Componenet Data", data);
-  }, [data]);
+  }, [data, group]);
   // Render
   return (
-    <>
-      <Details />
-      <Paper sx={{ p: 2 }} elevation={3}>
-        <ViewTransfer />
-        <PageLayout
-          left={<Grouping group={group} setGroup={setGroup} />}
-          create={
-            <>
-              <IButton onClick={() => dispatch(createAcTranfer())}>
-                <Icon>add</Icon>
-              </IButton>
-            </>
-          }
-          // period={period}
-          // setPeriod={(v) => setPeriod(v)}
-        >
-          {isLoading || isFetching ? (
-            Array.from({ length: 10 }).map((_, i) => (
-              <Skeleton key={i} height={60} />
-            ))
-          ) : groupData ? (
-            <GroupedData groupData={groupData} exludekey={group} />
-          ) : (
-            <Contents state={state} groupby={group} />
-          )}
-        </PageLayout>
-      </Paper>
-    </>
+    <Paper sx={{ p: 2 }} elevation={3}>
+      <ViewTransfer />
+      <PageLayout
+        create={
+          <>
+            <Grouping group={group} setGroup={setGroup} />
+            <IconButton
+              onClick={() => dispatch(createAcTranfer())}
+              sx={{ bgcolor: blue[100] }}
+            >
+              <Icon>add</Icon>
+            </IconButton>
+          </>
+        }
+        period={period}
+        setPeriod={(v) => setPeriod(v)}
+      >
+        {isLoading || isFetching ? (
+          Array.from({ length: 10 }).map((_, i) => (
+            <Skeleton key={i} height={60} />
+          ))
+        ) : groupData ? (
+          <GroupedData groupData={groupData} exludekey={group} />
+        ) : (
+          <Contents state={state} />
+        )}
+      </PageLayout>
+    </Paper>
   );
 };
 
-const Contents = ({ state, groupby }) => {
+const Contents = ({ state }) => {
   const dispatch = useDispatch();
   return (
-    <>
-      <List dense>
-        {state?.map((v, i) => (
-          <ListItemButton
-            divider
-            key={i}
-            onClick={() =>
-              dispatch(
-                openDetails({
-                  title: v?.display_name,
-                  condition: { key: groupby?.value, value: v?.id },
-                  groupOn: "user_id",
-                })
-              )
-            }
-          >
-            <ListItemText
-              primary={
-                <Body2 fontWeight={600} variant="subtitle1">
-                  {v?.display_name}
-                </Body2>
-              }
-              secondary={
-                <>
-                  <Body2>Received : {v.debit}</Body2>
-                  <Body2>Transferred: {v.credit}</Body2>
-                  <Body2>Balance : {v.net}</Body2>
-                </>
-              }
-            />
-          </ListItemButton>
-        ))}
-      </List>
-      {/* <TableContainer sx={{ maxHeight: "75vh" }}>
-        <Table stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>TrnfsNO.</TableCell>
-              <TableCell>Transfered BY</TableCell>
-              <TableCell>Transfered To</TableCell>
-              <TableCell>Amount</TableCell>
+    <TableContainer sx={{ maxHeight: "75vh" }}>
+      <Table stickyHeader size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>TrnfsNO.</TableCell>
+            <TableCell>Transfered BY</TableCell>
+            <TableCell>Transfered To</TableCell>
+            <TableCell>Amount</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {state?.map((v, i) => (
+            <TableRow key={i}>
+              <TableCell>
+                <Button
+                  onClick={() => dispatch(viewAcTranfer(v.actransfer_no))}
+                  sx={{ m: 0, p: 0 }}
+                >
+                  Transfer #: {v.actransfer_no || ""}
+                </Button>
+                <Typography variant="body2">
+                  {dayjs(v.created_at).format("YYYY-MM-DD")}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2">{v.transfer_by_user}</Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2">AC: {v.transfer_to_ac}</Typography>
+                <Typography variant="body2">
+                  User: {v.trasfer_to_user}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2">
+                  {_.toNumber(v.amount).toLocaleString()}
+                </Typography>
+              </TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {state?.map((v, i) => (
-              <TableRow key={i}>
-                <TableCell>
-                  <Button
-                    onClick={() => dispatch(viewAcTranfer(v.actransfer_no))}
-                    sx={{ m: 0, p: 0 }}
-                  >
-                    Transfer #: {v.actransfer_no || ""}
-                  </Button>
-                  <Typography variant="body2">
-                    {dayjs(v.created_at).format("YYYY-MM-DD")}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">{v.transfer_by_user}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    AC: {v.transfer_to_ac}
-                  </Typography>
-                  <Typography variant="body2">
-                    User: {v.trasfer_to_user}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {_.toNumber(v.amount).toLocaleString()}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer> */}
-    </>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 
 const Grouping = ({ group, setGroup }) => {
-  const [open, setOpen] = useState(null);
   const groupArray = [
-    { name: "Transfer NO.", value: "actransfer_no", icon: "change_circle" },
-    { name: "User", value: "user_id", icon: "person" },
-    { name: "Account", value: "j.account_id", icon: "attach_money" },
+    { name: "Date", value: "created_at" },
+    { name: "Transfered By", value: "transfer_by_user" },
+    { name: "Transfered To AC", value: "transfer_to_ac" },
+    { name: "Transfered To User", value: "trasfer_to_user" },
   ];
-
   return (
-    <>
-      <Stack
-        direction={"row"}
-        justifyContent={"flex-start"}
-        alignItems={"center"}
-        sx={{ cursor: "pointer" }}
-        onClick={(e) => setOpen(e.currentTarget)}
-      >
-        <Bold sx={{ mr: 1 }}>{group?.name}</Bold>
-        <Icon>arrow_drop_down</Icon>
-      </Stack>
-      <Menu anchorEl={open} open={Boolean(open)} onClose={() => setOpen(null)}>
-        <List dense>
-          {groupArray.map((v, i) => (
-            <ListItemButton divider onClick={() => setGroup(v)}>
-              <ListItemIcon>
-                <Icon>{v?.icon}</Icon>
-              </ListItemIcon>
-              <ListItemText primary={v.name} />
-              {v?.value === group?.value && (
-                <Icon color="success" sx={{ ml: 2 }}>
-                  check_circle
-                </Icon>
-              )}
-            </ListItemButton>
-          ))}
-        </List>
-      </Menu>
-    </>
+    <TextField
+      size="small"
+      value={group || ""}
+      onChange={(e) => setGroup(e.target.value)}
+      SelectProps={{ displayEmpty: true }}
+      select
+    >
+      <MenuItem value="">
+        <em>Select Group...</em>
+      </MenuItem>
+      {groupArray.map((v, i) => (
+        <MenuItem key={i} value={v.value}>
+          {v.name}
+        </MenuItem>
+      ))}
+    </TextField>
   );
 };
 

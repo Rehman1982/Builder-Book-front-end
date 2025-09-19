@@ -38,6 +38,7 @@ import {
   closePB,
   deleteJR,
   editPB,
+  setErrors,
   updateJR,
 } from "../../features/purcasheBill/purchaseBillSlice";
 import { Body1, Body2, Bold } from "../../components/ui/MyTypo";
@@ -51,6 +52,9 @@ import { blue, grey, orange } from "@mui/material/colors";
 import _ from "lodash";
 import dayjs from "dayjs";
 import useIsMobile from "../../hooks/useIsMobile";
+import { toast } from "../../features/alert/alertSlice";
+import { Error } from "../../components/ui/helpers";
+import { IButton } from "../../components/ui/UiComponents";
 
 export const CURD = () => {
   const dispatch = useDispatch();
@@ -75,13 +79,12 @@ export const CURD = () => {
       maxWidth="md"
       fullWidth
     >
-      <IconButton
+      <IButton
         onClick={() => dispatch(closePB())}
-        sx={{ alignSelf: "flex-end", m: 0 }}
-        size="medium"
+        sx={{ alignSelf: "flex-end", m: 1 }}
       >
         <Icon>close</Icon>
-      </IconButton>
+      </IButton>
       <DialogTitle>
         {pbNo
           ? `PB NO. ${pbNo}`
@@ -97,16 +100,16 @@ export const CURD = () => {
           {variant === "edit" && <HandleUpdate />}
           {variant === "view" && (
             <>
-              {/* {dayjs(created_at).isValid &&
-                dayjs(created_at).isSame(dayjs(), "day") && ( */}
-              <Button
-                onClick={() => dispatch(editPB())}
-                color="warning"
-                endIcon={<Icon>edit</Icon>}
-              >
-                Edit
-              </Button>
-              {/* )} */}
+              {dayjs(created_at).isValid &&
+                dayjs(created_at).isSame(dayjs(), "day") && (
+                  <Button
+                    onClick={() => dispatch(editPB())}
+                    color="warning"
+                    endIcon={<Icon>edit</Icon>}
+                  >
+                    Edit
+                  </Button>
+                )}
               <Button color="success" endIcon={<Icon>print</Icon>}>
                 Print
               </Button>
@@ -123,7 +126,9 @@ const JRItem = () => {
   const createEntryRef = useRef(null);
   const dispatch = useDispatch();
   // global state
-  const { variant, jrDetails } = useSelector((S) => S.purchaseBillSlice);
+  const { variant, jrDetails, errors } = useSelector(
+    (S) => S.purchaseBillSlice
+  );
   //API Call
   useCreatePBQuery();
   useEffect(() => {
@@ -134,6 +139,7 @@ const JRItem = () => {
       <Stack direction={"row"} justifyContent={"flex-end"} mb={1}>
         <CreateEntry ref={createEntryRef} />
       </Stack>
+
       {isMobile ? (
         <JRItemMobile createEntryRef={createEntryRef} />
       ) : (
@@ -156,12 +162,16 @@ const JRItem = () => {
                   <TableCell>
                     <Body1>{v?.item_name}</Body1>
                     <Body1>{v?.desp}</Body1>
+                    <Error name={`jrs.${i}.item_id`} errors={errors} />
+                    <Error name={`jrs.${i}.desp`} errors={errors} />
                   </TableCell>
                   <TableCell>
                     <Body1>{v?.qty}</Body1>
+                    <Error name={`jrs.${i}.qty`} errors={errors} />
                   </TableCell>
                   <TableCell>
                     <Body1>{v?.rate}</Body1>
+                    <Error name={`jrs.${i}.rate`} errors={errors} />
                   </TableCell>
                   <TableCell>
                     <Body1>{v?.debit}</Body1>
@@ -196,6 +206,8 @@ const JRItem = () => {
           </Table>
         </TableContainer>
       )}
+      {_.has(errors, "jrs") && <Error name="jrs" errors={errors} />}
+      {_.has(errors, "opr_ac") && <Error name="opr_ac" errors={errors} />}
       {jrDetails?.length > 1 && (
         <Stack
           bgcolor={orange[100]}
@@ -278,15 +290,14 @@ const CreateEntry = forwardRef((props, ref) => {
   // },
   return (
     <>
-      <IconButton
+      <IButton
         onClick={() => {
           setState({ index: null, data: {} });
           setOpen(true);
         }}
-        sx={{ border: 1, borderColor: blue[300] }}
       >
         <Icon>add</Icon>
-      </IconButton>
+      </IButton>
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogContent>
           <MyInpute
@@ -302,8 +313,8 @@ const CreateEntry = forwardRef((props, ref) => {
             getOptionLabel={(opt) => opt.item || ""}
             value={_.find(items, (o) => o?.id === state?.data?.item_id) || ""}
             onChange={(e, v) => {
-              handleChange("item_id", v.id);
-              handleChange("item_name", v.item);
+              handleChange("item_id", v?.id);
+              handleChange("item_name", v?.item);
             }}
             renderInput={(params) => <MyInpute {...params} label="Item" />}
           />
@@ -314,8 +325,8 @@ const CreateEntry = forwardRef((props, ref) => {
               _.find(projects, (o) => o?.id === state?.data?.project_id) || ""
             }
             onChange={(e, v) => {
-              handleChange("project_id", v.id);
-              handleChange("project_name", v.name);
+              handleChange("project_id", v?.id);
+              handleChange("project_name", v?.name);
             }}
             renderInput={(params) => <MyInpute {...params} label="Project" />}
           />
@@ -361,12 +372,26 @@ const MyInpute = (props) => {
 
 const JRItemMobile = ({ createEntryRef }) => {
   const dispatch = useDispatch();
-  const { jrDetails, variant } = useSelector((S) => S.purchaseBillSlice);
+  const { jrDetails, variant, errors } = useSelector(
+    (S) => S.purchaseBillSlice
+  );
   return (
     <Box>
       {jrDetails?.map((v, i) => (
-        <Card key={i} sx={{ mb: 2, p: 1 }}>
-          <CardContent component={Paper}>
+        <Card
+          key={i}
+          sx={{ mb: 2, p: 1, bgcolor: blue[50] }}
+          component={Paper}
+          elevation={3}
+        >
+          <CardContent>
+            <Stack>
+              <Error name={`jrs.${i}.item_id`} errors={errors} />
+              <Error name={`jrs.${i}.desp`} errors={errors} />
+              <Error name={`jrs.${i}.qty`} errors={errors} />
+              <Error name={`jrs.${i}.rate`} errors={errors} />
+            </Stack>
+
             <Body1 variant="subtitle1" fontWeight="bold">
               {v?.item_name}
             </Body1>
@@ -419,9 +444,10 @@ const HandleCreate = () => {
   // Function
   const handleApi = async () => {
     try {
-      const res = await storePB({ jrs: jrDetails }).unwrap();
-      console.log("Reseult for Backend", res);
+      await storePB({ jrs: jrDetails }).unwrap();
+      dispatch(toast({ message: "Bill Generated!", severity: "success" }));
     } catch (error) {
+      dispatch(setErrors(error?.data?.errors));
       console.log("Errors in Backend", error);
     }
   };
@@ -446,8 +472,10 @@ const HandleUpdate = () => {
         transDetails: transDetails,
         jrs: jrDetails,
       }).unwrap();
+      dispatch(toast({ message: "Bill Updated!", severity: "success" }));
       console.log("Reseult for Backend", res);
     } catch (error) {
+      dispatch(setErrors(error?.data?.errors));
       console.log("Errors in Backend", error);
     }
   };

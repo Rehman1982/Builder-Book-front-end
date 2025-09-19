@@ -122,10 +122,10 @@ const PeriodSelector = forwardRef((props, ref) => {
                   container
                   justifyContent={"space-between"}
                   alignItems={"flex-start"}
-                  spacing={2}
-                  columns={Object.keys(props).length}
+                  spacing={1}
+                  // columns={Object.keys(props).length}
                 >
-                  <Grid item xs={1}>
+                  <Grid item xs={12} md={4}>
                     <Box
                       sx={{
                         maxHeight: 400,
@@ -151,7 +151,7 @@ const PeriodSelector = forwardRef((props, ref) => {
                     </Box>
                   </Grid>
                   {_.has(props, "periodFrom") && (
-                    <Grid item xs={1}>
+                    <Grid item xs={12} md={4}>
                       <DatePicker
                         date={currentperiod.from}
                         setDate={(value) =>
@@ -165,7 +165,7 @@ const PeriodSelector = forwardRef((props, ref) => {
                     </Grid>
                   )}
                   {_.has(props, "periodTo") && (
-                    <Grid item xs={1}>
+                    <Grid item xs={12} md={4}>
                       <DatePicker
                         date={currentperiod.to}
                         setDate={(value) =>

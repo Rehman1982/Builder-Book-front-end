@@ -17,12 +17,12 @@ const initialState = {
   ],
   havings: [],
   groupby: [
-    { name: "Projects", value: "project_id" },
-    { name: "Vendors", value: "vendor_id" },
-    { name: "Accounts", value: "account_id" },
-    { name: "Users", value: "user_id" },
-    { name: "Items", value: "item_id" },
-    { name: "Business", value: "link" },
+    { name: "Project", value: "project_id" },
+    { name: "Vendor", value: "vendor_id" },
+    { name: "Account", value: "account_id" },
+    { name: "User", value: "user_id" },
+    { name: "Item", value: "item_id" },
+    { name: "Busines", value: "link" },
   ],
   mainReport: {
     groupedOn: "project_id",

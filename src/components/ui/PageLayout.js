@@ -33,8 +33,8 @@ const PageLayout = ({
   return (
     <Box width={"100%"}>
       <Stack
-        direction={"row"}
-        alignItems={"center"}
+        direction={{ xs: "column", md: "row" }}
+        alignItems={{ xs: "flex-start", md: "center" }}
         justifyContent={"space-between"}
         mb={1}
       >

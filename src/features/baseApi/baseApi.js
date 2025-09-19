@@ -22,6 +22,8 @@ export const baseApi = createApi({
     "Items",
     "AcTransfers",
     "AcTransfer",
+    "VendorPayments",
+    "VendorPayment",
   ],
   endpoints: () => ({}),
 });
